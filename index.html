@@ -1,12 +1,33 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나의 첫 GitHub 페이지</title>
-</head>
-<body>
-    <h1>안녕하세요, GitHub Pages!</h1>
-    <p>여기에 내용을 추가하세요.</p>
-</body>
-</html>
+def save_to_html(data):
+    html_content = "<html><head><title>AI Audit Articles</title></head><body>"
+    html_content += "<h1>AI Audit Articles</h1><table border='1'><tr><th>Title</th><th>Link</th></tr>"
+
+    for item in data:
+        html_content += f"<tr><td><a href='{item['Link']}'>{item['Title']}</a></td><td>{item['Link']}</td></tr>"
+
+    html_content += "</table></body></html>"
+
+    with open('index.html', 'w', encoding='utf-8') as file:
+        file.write(html_content)
+
+def crawl_aiaudit():
+    url = "https://aiaudit.org/"
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        data = []
+        articles = soup.find_all('h2', class_='entry-title')
+
+        for article in articles:
+            title = article.get_text()
+            link = article.find('a')['href']
+            data.append({'Title': title, 'Link': link})
+
+        # HTML로 저장
+        save_to_html(data)
+
+        print("크롤링 완료! 결과를 'index.html' 파일에 저장했습니다.")
+    else:
+        print(f"페이지를 불러오는 데 실패했습니다. 상태 코드: {response.status_code}")
